@@ -9,9 +9,6 @@ export default function Account() {
       <table>
         <tr>
           <td valign="top">
-            <AccountNavigation />
-          </td>
-          <td valign="top">
             <Routes>
               <Route path="/"
                      element={<Navigate to="/Kanbas/Account/Signin" />} />
