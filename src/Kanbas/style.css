@@ -1,11 +1,24 @@
+body {
+  display: flex;
+  height: 100vh;
+}
+
 #wd-kanbas-navigation {
   background-color: black;
-  width: 110px;
+  width: 140px; 
+  height: 100vh;
   position: fixed;
   top: 0;
-  bottom: 0;
+  left: 0;
   z-index: 2;
   padding-top: 10px;
+}
+
+#sign-in-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; 
 }
 
 #wd-kanbas-navigation a {
@@ -26,86 +39,4 @@
   background-color: rgba(255, 0, 0, 0.1);
 }
 
-#wd-courses-navigation {
-  padding-top: 20px;
-}
-
-.list-group.wd {
-  background-color: transparent;
-}
-
-.list-group.wd > .list-group-item.active {
-  color: black;
-  background-color: white;
-  border-left: 3px solid black !important;
-}
-
-.list-group.wd > .list-group-item {
-  background-color: transparent;
-  color: red;
-  padding: 10px 20px;
-  border: none;
-}
-
-.list-group.wd > .list-group-item:hover {
-  background-color: rgba(255, 0, 0, 0.1);
-  border-left: 3px solid red;
-  color: red;
-}
-
-.list-group.wd > .list-group-item + .list-group-item {
-  margin-top: 5px;
-}
-
-#wd-dashboard, #wd-courses {
-  padding: 20px;
-  margin-left: 140px; /* Ensure course pages also have this offset */
-}
-
-#wd-dashboard-title {
-  font-size: 2rem;
-  color: #333;
-}
-
-#wd-dashboard-courses {
-  margin-top: 20px;
-}
-
-.wd-dashboard-course {
-  margin-bottom: 30px;
-}
-
-.wd-dashboard-course img {
-  object-fit: cover;
-}
-
-.wd-dashboard-course-title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  text-align: center;
-} 
-
-.wd-dashboard-course .card-body {
-  text-align: center;
-  padding: 15px;
-}
-
-@media (min-width: 768px) {
-  .wd-main-content-offset {
-      margin-left: 140px; 
-  }
-}
-.wd-main-content-offset {
-  margin-left: 140px; /* Adjust this value according to the width of your sidebar */
-  padding: 20px;
-}
-
-/* Sidebar styles for consistency */
-#w-kanbas-navigation {
-  background-color: black;
-  width: 140px; /* Ensure the width is matching here */
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  z-index: 2;
-}
+@media (min-width: 768px) { #wd-kanbas .wd-main-content-offset { padding-left: 140px !important; } }

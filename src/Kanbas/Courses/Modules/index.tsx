@@ -2,10 +2,9 @@ import ModulesControls from "./ModulesControls";
 import LessonControlButtons from "./LessonControlButtons";
 import ModuleControlButtons from "./ModuleControlButtons";
 import { BsGripVertical } from "react-icons/bs";
-
 export default function Modules() {
   return (
-    <div>
+    <div id="wd-courseContent" className="container"> {/* This div wraps the content */}
       <ModulesControls /><br /><br /><br />
 
       <ul id="wd-modules" className="list-group rounded-0">

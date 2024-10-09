@@ -50,10 +50,10 @@ export default function Dashboard() {
 
   return (
     <div id="wd-dashboard" className="container">
-      <h1 id="wd-dashboard-title">Dashboard</h1>
+      <h1 id="wd-dashboard-title">Dashboards</h1>
       <hr />
 
-      <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
+      <h2 id="wd-dashboard-published">Published Course ({courses.length})</h2>
       <hr />
       <div id="wd-dashboard-courses" className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
         {courses.map((course) => (
