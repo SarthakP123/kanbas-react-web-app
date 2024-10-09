@@ -1,0 +1,41 @@
+#wd-dashboard {
+    padding-top: 20px;
+  }
+  
+  #wd-dashboard-courses {
+    margin-top: 20px;
+  }
+  
+  .wd-dashboard-course {
+    width: 260px; 
+  }
+  
+  .card {
+    height: 100%;
+  }
+  
+  .wd-dashboard-course-link {
+    text-align: center;
+  }
+  
+  .wd-dashboard-course img {
+    object-fit: cover; 
+  }
+  
+  .wd-dashboard-course-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .wd-dashboard-course .card-body {
+    text-align: center;
+    padding: 15px;
+  }
+  
+  @media (min-width: 768px) {
+    #wd-dashboard {
+      margin-left: 140px; 
+    }
+  }
+  
