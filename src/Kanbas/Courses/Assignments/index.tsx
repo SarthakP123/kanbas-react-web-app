@@ -1,23 +1,21 @@
-import { BsGripVertical, BsCheckCircle, BsPlus } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { BsGripVertical, BsCheckCircle, BsClock } from "react-icons/bs";
+import { Link, useParams } from "react-router-dom";
+import * as db from "../../Database"; 
 
 export default function Assignments() {
+  const { cid } = useParams(); 
+  const assignments = db.assignments.filter((assignment: any) => assignment.course === cid); 
   return (
-    <div id="wd-assignmentsContent" className="container">
+    <div id="wd-assignmentsContent" className="container-fluid">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2 className="text-danger">Assignments</h2>
-
-        {/* Buttons Group and Assignment */}
         <div>
-          <button className="btn btn-outline-secondary me-2">+ Group</button>
-          <Link to="/Kanbas/Courses/1234/Assignments/Editor" className="btn btn-danger">
-            <BsPlus className="me-1" /> Assignment
-          </Link>
+          <button className="btn btn-outline-secondary me-2">Show by Date</button>
+          <button className="btn btn-outline-secondary">Show by Type</button>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="input-group mb-3">
+      <div className="input-group mb-4">
         <span className="input-group-text">
           <BsGripVertical />
         </span>
@@ -28,56 +26,33 @@ export default function Assignments() {
         />
       </div>
 
-      {/* Assignments List */}
-      <h3 id="wd-assignments-title">
-        ASSIGNMENTS 40% of Total
-      </h3>
+
+      <h3 className="fw-bold">Upcoming Assignments</h3>
 
       <ul id="wd-assignment-list" className="list-group">
-        {/* Assignment 1 */}
-        <li className="wd-assignment-list-item list-group-item p-3 mb-3">
-          <div className="d-flex align-items-center justify-content-between">
-            <Link to="/Kanbas/Courses/1234/Assignments/123" className="wd-assignment-link text-decoration-none text-dark">
-              <BsGripVertical className="me-2 fs-4" />
-              <strong>A1 - ENV + HTML</strong>
-              <div className="text-muted">
-                Multiple Modules | Not available until May 6 at 12:00am <br />
-                <strong>Due:</strong> May 13 at 11:59pm | <strong>100 pts</strong>
-              </div>
-            </Link>
-            <BsCheckCircle className="text-success fs-4" />
-          </div>
-        </li>
-
-        {/* Assignment 2 */}
-        <li className="wd-assignment-list-item list-group-item p-3 mb-3">
-          <div className="d-flex align-items-center justify-content-between">
-            <Link to="/Kanbas/Courses/1234/Assignments/124" className="wd-assignment-link text-decoration-none text-dark">
-              <BsGripVertical className="me-2 fs-4" />
-              <strong>A2 - CSS + BOOTSTRAP</strong>
-              <div className="text-muted">
-                Multiple Modules | Not available until May 13 at 12:00am <br />
-                <strong>Due:</strong> May 20 at 11:59pm | <strong>100 pts</strong>
-              </div>
-            </Link>
-            <BsCheckCircle className="text-success fs-4" />
-          </div>
-        </li>
-
-        {/* Assignment 3 */}
-        <li className="wd-assignment-list-item list-group-item p-3 mb-3">
-          <div className="d-flex align-items-center justify-content-between">
-            <Link to="/Kanbas/Courses/1234/Assignments/125" className="wd-assignment-link text-decoration-none text-dark">
-              <BsGripVertical className="me-2 fs-4" />
-              <strong>A3 - JAVASCRIPT + REACT</strong>
-              <div className="text-muted">
-                Multiple Modules | Not available until May 20 at 12:00am <br />
-                <strong>Due:</strong> May 27 at 11:59pm | <strong>100 pts</strong>
-              </div>
-            </Link>
-            <BsCheckCircle className="text-success fs-4" />
-          </div>
-        </li>
+        {assignments.map((assignment: any) => (
+          <li
+            key={assignment._id}
+            className="wd-assignment-list-item list-group-item p-3 mb-3 d-flex align-items-center justify-content-between"
+          >
+            <div className="d-flex align-items-center">
+              <BsClock className="me-3 fs-4" /> 
+              <Link
+                to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+                className="wd-assignment-link text-decoration-none text-dark"
+              >
+                <strong>{assignment.title}</strong>
+                <div className="text-muted">
+                  Available until Oct 22 at 11:59pm | Due Oct 29 at 11:59pm <br />
+                  <strong>100 pts</strong>
+                </div>
+              </Link>
+            </div>
+            <div>
+              <BsCheckCircle className="text-success fs-4" />
+            </div>
+          </li>
+        ))}
       </ul>
     </div>
   );

@@ -1,43 +1,40 @@
-import { Link, useParams } from "react-router-dom"; 
+import { Link, useParams, useLocation } from "react-router-dom"; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faBookOpen, faComments, faVideo, faTasks, faClipboardList, faChartBar, faUsers } from "@fortawesome/free-solid-svg-icons";
 
+const links = [
+  { label: "Home", path: "Home", icon: faHome },
+  { label: "Modules", path: "Modules", icon: faBookOpen },
+  { label: "Piazza", path: "Piazza", icon: faComments },
+  { label: "Zoom", path: "Zoom", icon: faVideo },
+  { label: "Assignments", path: "Assignments", icon: faTasks },
+  { label: "Quizzes", path: "Quizzes", icon: faClipboardList },
+  { label: "Grades", path: "Grades", icon: faChartBar },
+  { label: "People", path: "People", icon: faUsers }
+];
+
 export default function CoursesNavigation() {
   const { cid } = useParams();  
+  const location = useLocation(); 
 
   return (
     <div id="wd-courses-navigation">
-      <Link id="wd-course-home-link" to={`/Kanbas/Courses/${cid}/Home`}>
-        <FontAwesomeIcon icon={faHome} className="wd-nav-icon" /> Home
-      </Link><br/>
+      {links.map(({ label, path, icon }) => {
+        const fullPath = `/Kanbas/Courses/${cid}/${path}`;  
+        const isActive = location.pathname === fullPath; 
 
-      <Link id="wd-course-modules-link" to={`/Kanbas/Courses/${cid}/Modules`}>
-        <FontAwesomeIcon icon={faBookOpen} className="wd-nav-icon" /> Modules
-      </Link><br/>
-
-      <Link id="wd-course-piazza-link" to={`/Kanbas/Courses/${cid}/Piazza`}>
-        <FontAwesomeIcon icon={faComments} className="wd-nav-icon" /> Piazza
-      </Link><br/>
-
-      <Link id="wd-course-zoom-link" to={`/Kanbas/Courses/${cid}/Zoom`}>
-        <FontAwesomeIcon icon={faVideo} className="wd-nav-icon" /> Zoom
-      </Link><br/>
-
-      <Link id="wd-course-assignments-link" to={`/Kanbas/Courses/${cid}/Assignments`}>
-        <FontAwesomeIcon icon={faTasks} className="wd-nav-icon" /> Assignments
-      </Link><br/>
-
-      <Link id="wd-course-quizzes-link" to={`/Kanbas/Courses/${cid}/Quizzes`}>
-        <FontAwesomeIcon icon={faClipboardList} className="wd-nav-icon" /> Quizzes
-      </Link><br/>
-
-      <Link id="wd-course-grades-link" to={`/Kanbas/Courses/${cid}/Grades`}>
-        <FontAwesomeIcon icon={faChartBar} className="wd-nav-icon" /> Grades
-      </Link><br/>
-
-      <Link id="wd-course-people-link" to={`/Kanbas/Courses/${cid}/People`}>
-        <FontAwesomeIcon icon={faUsers} className="wd-nav-icon" /> People
-      </Link><br/>
+        return (
+          <Link
+            key={path}
+            to={fullPath}
+            className={`d-block mb-2 ${isActive ? 'text-black fw-bold' : 'text-danger'}`}  
+            id={`wd-course-${path.toLowerCase()}-link`}
+            style={{ textDecoration: 'none' }} 
+          >
+            <FontAwesomeIcon icon={icon} className="wd-nav-icon me-2" /> {label}
+          </Link>
+        );
+      })}
     </div>
   );
 }
