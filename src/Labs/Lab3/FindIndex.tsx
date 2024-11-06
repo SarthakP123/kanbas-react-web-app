@@ -7,4 +7,4 @@ const string3Index = stringArray1.findIndex(a => a === 'string3');
 console.log(fourIndex);
 console.log(string3Index);
 
-export {};
+export default{};
