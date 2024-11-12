@@ -29,13 +29,24 @@ import JsonStringify from './JsonStringify';
 import PathParameters from './PathParameters';
 import Styles from './Styles';
 import VariablesAndConstants from './VariablesAndConstants';
+import { useSelector } from "react-redux";
+
 
 const Lab3 = () => {
     console.log('Hello World!');
+    const { todos } = useSelector((state: any) => state.todosReducer);
     return (
         <div>
             <h3>JavaScript</h3>
             <h2>Lab 3</h2>
+            <ul className="list-group">
+        {todos.map((todo: any) => (
+          <li className="list-group-item" key={todo.id}>
+            {todo.title}
+          </li>
+        ))}
+      </ul>
+      <hr />
             <BooleanVariables />
             <IfElse />
             <TernaryOperator />
