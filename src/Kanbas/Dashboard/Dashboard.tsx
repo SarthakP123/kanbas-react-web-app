@@ -1,6 +1,5 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import * as db from "./Database";
 import { Link } from "react-router-dom";
 
 export default function Dashboard({
@@ -20,17 +19,7 @@ export default function Dashboard({
   editCourse: (selectedCourse: any) => void;
   updateCourse: () => void;
 }) {
-  // Utility function to truncate text
-  const truncateText = (text: string, maxLength: number) => {
-    if (text.length > maxLength) {
-      return text.slice(0, maxLength) + '...';
-    }
-    return text;
-  };
-
-  // Get the current user from Redux store
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-  const { enrollments } = db;
 
   if (!currentUser) {
     return (
@@ -41,18 +30,11 @@ export default function Dashboard({
     );
   }
 
-  const userEnrolledCourses = courses.filter((course) =>
-    enrollments.some(
-      (enrollment) =>
-        enrollment.user === currentUser._id && enrollment.course === course._id
-    )
-  );
-
   return (
     <div id="wd-dashboard" className="p-4">
       <h1 id="wd-dashboard-title">Dashboard</h1>
       <hr />
-      <h2 id="wd-dashboard-published">Published Courses ({userEnrolledCourses.length})</h2>
+      <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
       <hr />
 
       <h5>
@@ -88,13 +70,15 @@ export default function Dashboard({
 
       <hr />
 
-      {/* Render the list of enrolled courses */}
       <div id="wd-dashboard-courses" className="row">
         <div className="row row-cols-1 row-cols-md-5 g-4">
-          {userEnrolledCourses.map((c) => (
+          {courses.map((c) => (
             <div key={c._id} className="col" style={{ width: "300px" }}>
               <div className="card rounded-3 overflow-hidden">
-                <Link to={`/Kanbas/Courses/${c._id}/Home`} className="text-decoration-none text-dark">
+                <Link
+                  to={`/Kanbas/Courses/${c._id}/Home`}
+                  className="text-decoration-none text-dark"
+                >
                   <img
                     src={c.image || "/images/reactjs.jpg"}
                     alt={c.name}
@@ -103,10 +87,7 @@ export default function Dashboard({
                   />
                   <div className="card-body">
                     <h5 className="card-title">{c.name}</h5>
-                    <p className="card-text">
-                      <strong>Description:</strong> {truncateText(c.description, 100)}
-                    </p>
-                    <button className="btn btn-primary">Go</button>
+                    <p className="card-text">{c.description}</p>
                     <button
                       onClick={(event) => {
                         event.preventDefault();
