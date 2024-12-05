@@ -1,80 +1,131 @@
-import React, { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import * as coursesClient from '../client'; 
+import * as assignmentsClient from './client';
 import { addAssignment, updateAssignment } from "./reducer";
 
-interface Assignment {
-  _id: string;
-  title: string;
-  course: string;
-  description?: string;
-  points?: number;
-  dueDate?: string;
-  availableDate?: string;
-}
-
 export default function AssignmentEditor() {
+  const navigate = useNavigate();
   const { cid, aid } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const editing = aid !== "newassignment";
+
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+  const currentAssignment = assignments.find((assignment: any) => assignment._id === aid);
 
-  const existingAssignment = assignments.find((a: Assignment) => a._id === aid);
-  const [assignment, setAssignment] = useState<Assignment>(
-    existingAssignment || {
-      _id: "",
-      title: "",
-      description: "",
-      points: 100,
-      dueDate: "",
-      availableDate: "",
-      course: cid,
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const checkRole = () => {
+    if (currentUser.role === "STUDENT") return navigate(`/Kanbas/Courses/${cid}/Assignments`);
+  };
+  useEffect(() => {
+    checkRole();
+  }, []);
+
+  // For setting values
+  const [_id, setAssignmentID] = useState("");
+  const [title, setAssignmentTitle] = useState("");
+  const [course, setAssignmentCourse] = useState("");
+  const [description, setAssignmentDescription] = useState("");
+  const [points, setAssignmentPoints] = useState(0);
+  const [dueDate, setAssignmentDDate] = useState("");
+  const [availableFrom, setAssignmentADate] = useState("");
+  const [availableUntil, setAssignmentAUDate] = useState("");
+
+  // Initialize state when editing an existing assignment
+  useEffect(() => {
+    if (currentAssignment && _id === "") {
+      setAssignmentID(currentAssignment._id);
+      setAssignmentTitle(currentAssignment.title);
+      setAssignmentDescription(currentAssignment.description);
+      setAssignmentPoints(currentAssignment.points);
+      setAssignmentDDate(currentAssignment.dueDate);
+      setAssignmentADate(currentAssignment.availableFrom);
+      setAssignmentAUDate(currentAssignment.availableUntil);
+      setAssignmentCourse(currentAssignment.course); // Ensure the course is set
     }
-  );
+  }, [currentAssignment, _id]);
 
-  const handleSave = () => {
-    if (existingAssignment) {
-      dispatch(updateAssignment(assignment));
+  const save = async () => {
+    const assignment = {
+      _id,
+      title,
+      course,
+      description,
+      points,
+      dueDate,
+      availableFrom,
+      availableUntil,
+    };
+
+    if (!editing) {
+      assignment.course = cid!;
+      const newAssignment = await coursesClient.createAssignmentForCourse(cid!, assignment);
+      dispatch(addAssignment(newAssignment));
     } else {
-      dispatch(addAssignment(assignment));
+      await assignmentsClient.updateAssignment(assignment);
+      dispatch(updateAssignment(assignment));
     }
+
+    // Navigate back to the assignments page after saving
     navigate(`/Kanbas/Courses/${cid}/Assignments`);
   };
 
   return (
-    <div className="container mt-4">
-      <h2>{existingAssignment ? "Edit Assignment" : "New Assignment"}</h2>
-      <input
-        className="form-control mb-3"
-        value={assignment.title}
-        onChange={(e) => setAssignment({ ...assignment, title: e.target.value })}
-        placeholder="Assignment Title"
-      />
-      <textarea
-        className="form-control mb-3"
-        value={assignment.description}
-        onChange={(e) => setAssignment({ ...assignment, description: e.target.value })}
-        placeholder="Assignment Description"
-      />
-      <input
-        className="form-control mb-3"
-        type="number"
-        value={assignment.points}
-        onChange={(e) => setAssignment({ ...assignment, points: +e.target.value })}
-        placeholder="Points"
-      />
-      <input
-        className="form-control mb-3"
-        type="date"
-        value={assignment.dueDate}
-        onChange={(e) => setAssignment({ ...assignment, dueDate: e.target.value })}
-      />
-      <button className="btn btn-success me-2" onClick={handleSave}>
-        Save
-      </button>
-      <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-secondary">
-        Cancel
-      </Link>
+    <div id="wd-assignments-editor">
+      <form>
+        <div>
+          <label htmlFor="wd-name">Assignment Name</label>
+          <input
+            id="wd-name"
+            placeholder="Assignment Name"
+            value={title}
+            className="form-control border-dark mb-4"
+            onChange={(e) => setAssignmentTitle(e.target.value)}
+          />
+          <textarea
+            id="wd-description"
+            className="form-control border-dark"
+            rows={10}
+            value={description}
+            onChange={(e) => setAssignmentDescription(e.target.value)}
+          ></textarea>
+          <br />
+        </div>
+        <div className="row m-2">
+          <div className="col">
+            <label htmlFor="wd-points" className="float-end">
+              Points
+            </label>
+          </div>
+          <div className="col">
+            <input
+              id="wd-points"
+              placeholder="100"
+              value={points}
+              className="form-control mb-2 border-dark"
+              onChange={(e) => setAssignmentPoints(Number(e.target.value))}
+            />
+          </div>
+        </div>
+
+        {/* ... Rest of your form elements ... */}
+
+        <hr />
+        <div className="float-end">
+          <Link
+            to={`/Kanbas/Courses/${cid}/Assignments`}
+            className="wd-dashboard-course-link text-decoration-none text-dark"
+          >
+            <button type="button" className="btn btn-l border-dark">
+              Cancel
+            </button>
+          </Link>
+          <button type="button" className="btn btn-l btn-danger border-dark m-3" onClick={save}>
+            Save
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

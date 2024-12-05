@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import RoleOnly from "../Account/AllowCertainRoles";
 
 export default function Dashboard({
   courses,
@@ -38,35 +39,41 @@ export default function Dashboard({
       <hr />
 
       <h5>
+        
+        <RoleOnly role="FACULTY">
         Edit Course
-        <button
-          className="btn btn-primary float-end"
-          onClick={addNewCourse}
-          id="wd-add-new-course-click"
-        >
-          Add
-        </button>
-        <button
-          className="btn btn-warning float-end me-2"
-          onClick={updateCourse}
-          id="wd-update-course-click"
-        >
-          Update
-        </button>
+          <button
+            className="btn btn-primary float-end"
+            onClick={addNewCourse}
+            id="wd-add-new-course-click"
+          >
+            Add
+          </button>
+          <button
+            className="btn btn-warning float-end me-2"
+            onClick={updateCourse}
+            id="wd-update-course-click"
+          >
+            Update
+          </button>
+        </RoleOnly>
       </h5>
       <br />
-      <input
-        value={course.name}
-        className="form-control mb-2"
-        placeholder="Course Name"
-        onChange={(e) => setCourse({ ...course, name: e.target.value })}
-      />
-      <textarea
-        value={course.description}
-        className="form-control mb-2"
-        placeholder="Course Description"
-        onChange={(e) => setCourse({ ...course, description: e.target.value })}
-      />
+
+      <RoleOnly role="FACULTY">
+        <input
+          value={course.name}
+          className="form-control mb-2"
+          placeholder="Course Name"
+          onChange={(e) => setCourse({ ...course, name: e.target.value })}
+        />
+        <textarea
+          value={course.description}
+          className="form-control mb-2"
+          placeholder="Course Description"
+          onChange={(e) => setCourse({ ...course, description: e.target.value })}
+        />
+      </RoleOnly>
 
       <hr />
 
@@ -88,6 +95,10 @@ export default function Dashboard({
                   <div className="card-body">
                     <h5 className="card-title">{c.name}</h5>
                     <p className="card-text">{c.description}</p>
+                  </div>
+                </Link>
+                <RoleOnly role="FACULTY">
+                  <div className="card-body">
                     <button
                       onClick={(event) => {
                         event.preventDefault();
@@ -109,7 +120,7 @@ export default function Dashboard({
                       Delete
                     </button>
                   </div>
-                </Link>
+                </RoleOnly>
               </div>
             </div>
           ))}

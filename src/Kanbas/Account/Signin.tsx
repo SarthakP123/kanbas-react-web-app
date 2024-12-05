@@ -6,7 +6,7 @@ import * as client from "./client";
 
 export default function Signin() {
   const [credentials, setCredentials] = useState<any>({});
-  const [error, setError] = useState<string | null>(null); // State for error messages
+  const [error, setError] = useState<string | null>(null); 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -14,10 +14,10 @@ export default function Signin() {
     try {
       const user = await client.signin(credentials);
       dispatch(setCurrentUser(user));
-      navigate("/Kanbas/Dashboard");
+      navigate("/#/Kanbas/Dashboard");
     } catch (err: any) {
       if (err.response?.status === 401) {
-        setError("Invalid username or password."); // Friendly message for 401
+        setError("Invalid username or password."); 
       } else {
         setError("An unexpected error occurred. Please try again.");
       }
@@ -27,7 +27,7 @@ export default function Signin() {
   return (
     <div id="wd-signin-screen">
       <h1>Sign in</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>} {/* Display errors */}
+      {error && <p style={{ color: "red" }}>{error}</p>} 
       <input
         value={credentials.username || ""}
         onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}

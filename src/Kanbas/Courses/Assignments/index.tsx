@@ -1,95 +1,127 @@
-import React, { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteAssignment } from "./reducer";
-import { BsPlus, BsSearch, BsClock, BsCheckCircle } from "react-icons/bs";
+import { FaGripVertical, FaTrash } from "react-icons/fa";
+import AssignmentControls from "./AssignmentControls";
+import AssignmentButtons from "./AssignmentButtons";
+import { useParams, Link } from "react-router-dom";
+import { deleteAssignment, setAssignments } from "./reducer";
+import { useSelector, useDispatch } from "react-redux";
+import RoleOnly from "../../Account/AllowCertainRoles";
+import GreenCheckmark from "../Modules/GreenCheckMark";
+import { IoEllipsisVertical } from "react-icons/io5";
+import { useState, useEffect } from "react";
+import * as coursesClient from "../client";
+import * as assignmentsClient from "./client";
 
 interface Assignment {
   _id: string;
   title: string;
-  course: string;
-  description?: string;
-  points?: number;
-  dueDate?: string;
-  availableDate?: string;
+  availableFrom: string;
+  dueDate: string;
+  points: number;
 }
 
 export default function Assignments() {
-  const { cid } = useParams();
+  const { cid } = useParams<{ cid: string }>();
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
 
-  const filteredAssignments = assignments
-    .filter((a: Assignment) => a.course === cid)
-    .filter((a: Assignment) => a.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  useEffect(() => {
+    const loadAssignments = async () => {
+      try {
+        const fetchedAssignments = await coursesClient.findAssignmentsForCourse(cid!);
+        dispatch(setAssignments(fetchedAssignments));
+      } catch (error) {
+        console.error("Error loading assignments:", error);
+      }
+    };
+    loadAssignments();
+  }, [cid, dispatch]);
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this assignment?")) {
-      dispatch(deleteAssignment(id));
+  const handleDeleteAssignment = async () => {
+    try {
+      await assignmentsClient.deleteAssignment(selectedAssignmentId);
+      dispatch(deleteAssignment(selectedAssignmentId));
+    } catch (error) {
+      console.error("Error deleting assignment:", error);
     }
   };
 
-  const handleAddAssignment = () => {
-    navigate(`/Kanbas/Courses/${cid}/Assignments/new`, { state: { isNew: true } });
-  };
-
   return (
-    <div className="container">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="text-danger">Assignments</h2>
-        <button className="btn btn-danger" onClick={handleAddAssignment}>
-          <BsPlus className="me-2" /> Assignment
-        </button>
-      </div>
-
-      <div className="input-group mb-4">
-        <span className="input-group-text">
-          <BsSearch />
-        </span>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search for Assignments"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      <ul className="list-group">
-        {filteredAssignments.map((a: Assignment) => (
-          <li key={a._id} className="list-group-item p-3 mb-3">
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <Link to={`/Kanbas/Courses/${cid}/Assignments/${a._id}`} className="text-decoration-none text-dark">
-                  <h5 className="mb-1">{a.title}</h5>
-                </Link>
-                <p className="text-muted mb-1">{a.description || "No description available."}</p>
-                <div className="d-flex align-items-center">
-                  <BsClock className="me-2 text-muted" />
-                  <small className="text-muted">
-                    Due: {a.dueDate || "N/A"} | Points: {a.points || 0}
-                  </small>
+    <div id="assignments-container">
+      <AssignmentControls />
+      <div className="assignments-wrapper">
+        <div className="assignments-header d-flex align-items-center p-3 bg-secondary text-white">
+          <FaGripVertical className="me-2 fs-3" />
+          <h4 className="mb-0">Assignments</h4>
+        </div>
+        <div className="assignments-list">
+          {assignments.map((assignment: Assignment) => (
+            <div key={assignment._id} className="assignment-item p-3 mb-3 border rounded shadow-sm">
+              <div className="d-flex justify-content-between align-items-start">
+                <div className="assignment-details">
+                  <Link
+                    to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+                    className="text-dark text-decoration-none"
+                  >
+                    <h5 className="mb-2">{assignment.title}</h5>
+                  </Link>
+                  <p className="mb-1 text-muted fs-6">
+                    <span className="text-danger">Multiple Modules</span> |{" "}
+                    <strong>Available from: {assignment.availableFrom}</strong> |{" "}
+                    <strong>Due:</strong> {assignment.dueDate} | {assignment.points} pts
+                  </p>
+                  <AssignmentButtons />
+                </div>
+                <div className="assignment-actions d-flex align-items-center">
+                  <GreenCheckmark />
+                  <IoEllipsisVertical className="fs-4 ms-3" />
+                  <RoleOnly role="FACULTY">
+                    <FaTrash
+                      className="text-danger ms-3 cursor-pointer"
+                      data-bs-toggle="modal"
+                      data-bs-target="#delete-assignment-modal"
+                      onClick={() => setSelectedAssignmentId(assignment._id)}
+                    />
+                  </RoleOnly>
                 </div>
               </div>
-              <div className="d-flex align-items-center">
-                <button
-                  className="btn btn-outline-danger me-2"
-                  onClick={() => handleDelete(a._id)}
-                >
-                  Delete
-                </button>
-                <BsCheckCircle className="text-success fs-4" />
-              </div>
             </div>
-          </li>
-        ))}
-      </ul>
-
-      {filteredAssignments.length === 0 && (
-        <div className="text-center text-muted">No assignments found.</div>
-      )}
+          ))}
+        </div>
+      </div>
+  
+      {/* Delete Assignment Modal */}
+      <div
+        id="delete-assignment-modal"
+        className="modal fade"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Confirm Deletion</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" />
+            </div>
+            <div className="modal-body">
+              <p>Are you sure you want to delete this assignment? This action cannot be undone.</p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAssignment}
+                type="button"
+                data-bs-dismiss="modal"
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+          }  

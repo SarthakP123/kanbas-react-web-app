@@ -1,6 +1,7 @@
 import { FaPlus } from "react-icons/fa6";
 import GreenCheckmark from "./GreenCheckMark";
 import ModuleEditor from "./ModuleEditor";
+import RoleOnly from "../../Account/AllowCertainRoles";
 
 export default function ModulesControls(
   { moduleName, setModuleName, addModule }:
@@ -8,15 +9,17 @@ export default function ModulesControls(
 ) {
   return (
     <div id="wd-modules-controls" className="text-nowrap">
-      <button
-        className="btn btn-lg btn-danger me-1 float-end"
-        id="wd-add-module-btn"
-        data-bs-toggle="modal"
-        data-bs-target="#wd-add-module-dialog"
-      >
-        <FaPlus className="position-relative me-2" style={{ bottom: "1px" }} />
-        Module
-      </button>
+      <RoleOnly role="FACULTY">
+        <button
+          className="btn btn-lg btn-danger me-1 float-end"
+          id="wd-add-module-btn"
+          data-bs-toggle="modal"
+          data-bs-target="#wd-add-module-dialog"
+        >
+          <FaPlus className="position-relative me-2" style={{ bottom: "1px" }} />
+          Module
+        </button>
+      </RoleOnly>
 
       <div className="dropdown d-inline me-1 float-end">
         <button
@@ -30,24 +33,24 @@ export default function ModulesControls(
         </button>
         <ul className="dropdown-menu">
           <li>
-            <a id="wd-publish-all-modules-and-items-btn" className="dropdown-item" href="Publish all modules and items">
+            <a id="wd-publish-all-modules-and-items-btn" className="dropdown-item" href="#">
               <GreenCheckmark />
               Publish all modules and items
             </a>
           </li>
           <li>
-            <a id="wd-publish-modules-only-button" className="dropdown-item" href="Publish modules only">
+            <a id="wd-publish-modules-only-button" className="dropdown-item" href="#">
               <GreenCheckmark />
               Publish modules only
             </a>
           </li>
           <li>
-            <a id="wd-unpublish-all-modules-and-items" className="dropdown-item" href="Unpublish all modules and items">
+            <a id="wd-unpublish-all-modules-and-items" className="dropdown-item" href="#">
               Unpublish all modules and items
             </a>
           </li>
           <li>
-            <a id="wd-unpublish-modules-only" className="dropdown-item" href="Unpublish modules only">
+            <a id="wd-unpublish-modules-only" className="dropdown-item" href="#">
               Unpublish modules only
             </a>
           </li>
