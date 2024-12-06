@@ -1,17 +1,13 @@
+import React from "react";
 import { FaUserCircle } from "react-icons/fa";
-import { useParams } from "react-router-dom";
-import * as db from "../../Database";
+import PeopleDetails from "./Details";
+import { Link } from "react-router-dom";
 
-export default function PeopleTable() {
-  const { cid } = useParams(); 
-  const { users, enrollments } = db;  
 
-  const enrolledUsers = users.filter((user) =>
-    enrollments.some((enrollment) => enrollment.user === user._id && enrollment.course === cid)
-  );
-
+export default function PeopleTable({ users = [] }: { users?: any[] }) {
   return (
     <div id="wd-people-table" className="container">
+            <PeopleDetails />
       <table className="table table-striped table-hover">
         <thead>
           <tr>
@@ -24,11 +20,15 @@ export default function PeopleTable() {
           </tr>
         </thead>
         <tbody>
-          {enrolledUsers.map((user) => (
+          {users.map((user) => (
             <tr key={user._id}>
               <td className="wd-full-name text-nowrap">
+              <Link to={`/Kanbas/Account/Users/${user._id}`} className="text-decoration-none">
+
                 <FaUserCircle className="me-2 fs-1 text-secondary" />
-                <span className="wd-first-name">{user.firstName}</span> <span className="wd-last-name">{user.lastName}</span>
+                <span className="wd-first-name">{user.firstName}</span>{" "}
+                <span className="wd-last-name">{user.lastName}</span>
+                </Link>
               </td>
               <td className="wd-login-id">{user.loginId}</td>
               <td className="wd-section">{user.section}</td>
