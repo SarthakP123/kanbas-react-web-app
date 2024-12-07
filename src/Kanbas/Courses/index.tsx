@@ -1,24 +1,32 @@
-// Courses/index.tsx
 import { useParams, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import CoursesNavigation from "./Navigation";
 import Modules from "./Modules";
 import Home from "./Home";
 import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
 import { FaAlignJustify } from "react-icons/fa";
-import { Routes, Route } from "react-router";
+import { Routes, Route, Navigate } from "react-router";
 import PeopleTable from "./People/Table";
 import QuizList from "./Quizzes/quizlist";
 import QuizEditor from "./Quizzes/quizeditor";
+import QuizTaker from "./Quizzes/QuizTaker";
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
   const location = useLocation();
+  const [currentCourse, setCurrentCourse] = useState<any>(null);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
 
-  // Find the course by its ID from the passed courses prop
-  const course = courses.find((course) => course._id === cid);
+  useEffect(() => {
+    const foundCourse = courses.find((course) => course._id === cid);
+    if (foundCourse) {
+      setCurrentCourse(foundCourse);
+    }
+  }, [cid, courses]);
 
-  if (!course) {
+  if (!currentCourse) {
     return <div>Course not found</div>;
   }
 
@@ -28,7 +36,7 @@ export default function Courses({ courses }: { courses: any[] }) {
     <div id="wd-courses">
       <h2 className="text-danger">
         <FaAlignJustify className="me-4 fs-4 mb-1" />
-        {course.name} &gt; {currentSection}
+        {currentCourse.name} &gt; {currentSection}
       </h2>
       <hr />
       <div className="d-flex">
@@ -42,10 +50,32 @@ export default function Courses({ courses }: { courses: any[] }) {
             <Route path="Assignments" element={<Assignments />} />
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
             <Route path="People" element={<PeopleTable />} />
-            <Route path="Quizzes" element={<QuizList />} />
-            <Route path="Quizzes/new" element={<QuizEditor />} />
-            <Route path="Quizzes/:qid" element={<QuizEditor />} />
-            <Route path="Quizzes/:qid/edit" element={<QuizEditor />} />
+            <Route 
+              path="Quizzes" 
+              element={<QuizList currentCourse={currentCourse} />} 
+            />
+            <Route 
+              path="Quizzes/new" 
+              element={
+                currentUser?.role === "FACULTY" ? 
+                  <QuizEditor currentCourse={currentCourse} /> : 
+                  <Navigate to="../" />
+              } 
+            />
+            <Route 
+              path="Quizzes/:qid" 
+              element={<QuizEditor currentCourse={currentCourse} />} 
+            />
+            <Route 
+              path="Quizzes/:qid/edit" 
+              element={
+                currentUser?.role === "FACULTY" ? 
+                  <QuizEditor currentCourse={currentCourse} /> : 
+                  <Navigate to="../" />
+              } 
+            />
+              <Route path="Quizzes/:quizId/take" element={<QuizTaker currentCourse={currentCourse} />} />
+
           </Routes>
         </div>
       </div>
