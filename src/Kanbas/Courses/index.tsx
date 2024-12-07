@@ -12,6 +12,7 @@ import PeopleTable from "./People/Table";
 import QuizList from "./Quizzes/quizlist";
 import QuizEditor from "./Quizzes/quizeditor";
 import QuizTaker from "./Quizzes/QuizTaker";
+import QuizPreview from "./Quizzes/QuizPreview";
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
@@ -75,6 +76,16 @@ export default function Courses({ courses }: { courses: any[] }) {
               } 
             />
               <Route path="Quizzes/:quizId/take" element={<QuizTaker currentCourse={currentCourse} />} />
+              <Route 
+    path="Quizzes/:quizId/preview" 
+    element={
+      currentUser?.role === "FACULTY" ? 
+        <QuizPreview currentCourse={currentCourse} /> : 
+        <Navigate to="../" />
+    }
+  />
+  <Route path="Quizzes/:quizId/edit" element={<QuizEditor currentCourse={currentCourse} />} />
+  <Route path="Quizzes/:quizId/take" element={<QuizTaker currentCourse={currentCourse} />} />
 
           </Routes>
         </div>

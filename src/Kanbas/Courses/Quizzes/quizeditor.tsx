@@ -51,7 +51,7 @@ const QuizEditor = ({ currentCourse }: { currentCourse: any }) => {
     const [loading, setLoading] = useState(true);
     
     const [quiz, setQuiz] = useState<Quiz>({
-      title: "",
+      title: "Quiz",
       description: "",
       quizType: "GRADED_QUIZ",
       points: 0,
@@ -206,22 +206,35 @@ const QuizEditor = ({ currentCourse }: { currentCourse: any }) => {
         firstError?.scrollIntoView({ behavior: 'smooth' });
         return;
       }
-
+  
       const updatedQuiz = { 
         ...quiz,
-        published: andPublish,
+        published: andPublish, // If just saving, this will be false
         courseId: currentCourse._id
       };
-
+  
       let savedQuiz;
       if (!qid || qid === 'new') {
-        savedQuiz = await client.createQuiz(currentCourse._id, updatedQuiz);
+        // For new quizzes, explicitly set published to false unless publishing
+        savedQuiz = await client.createQuiz(currentCourse._id, {
+          ...updatedQuiz,
+          published: andPublish
+        });
       } else {
-        savedQuiz = await client.updateQuiz(qid, updatedQuiz);
+        // For existing quizzes, keep it unpublished unless explicitly publishing
+        savedQuiz = await client.updateQuiz(qid, {
+          ...updatedQuiz,
+          published: andPublish // This will be false for save, true for publish
+        });
       }
-
+  
       if (savedQuiz) {
-        navigate(`/Kanbas/Courses/${currentCourse._id}/Quizzes`);
+        // Navigate based on which button was clicked
+        if (andPublish) {
+          navigate(`/Kanbas/Courses/${currentCourse._id}/Quizzes`);
+        } else {
+          navigate(`/Kanbas/Courses/${currentCourse._id}/Quizzes/${savedQuiz._id}/preview`);
+        }
       }
     } catch (error) {
       console.error("Error saving quiz:", error);
@@ -583,26 +596,24 @@ const QuizEditor = ({ currentCourse }: { currentCourse: any }) => {
         </div>
       )}
 
-      <div className="mt-4 d-flex gap-2">
-        <Button 
-          variant="success" 
-          onClick={() => handleSave(true)}
-        >
-          Save & Publish
-        </Button>
-        <Button 
-          variant="primary" 
-          onClick={() => handleSave(false)}
-        >
-          Save
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => navigate(`/Kanbas/Courses/${currentCourse._id}/Quizzes`)}
-        >
-          Cancel
-        </Button>
-      </div>
+<Button 
+    variant="primary" 
+    onClick={() => handleSave(false)}
+  >
+    Save
+  </Button>
+  <Button 
+    variant="success" 
+    onClick={() => handleSave(true)}
+  >
+    Save & Publish
+  </Button>
+  <Button
+    variant="secondary"
+    onClick={() => navigate(`/Kanbas/Courses/${currentCourse._id}/Quizzes`)}
+  >
+    Cancel
+  </Button>
     </div>
   );
 };

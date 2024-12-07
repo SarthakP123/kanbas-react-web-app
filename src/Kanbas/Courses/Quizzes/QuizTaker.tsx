@@ -1,9 +1,9 @@
 // QuizTaker.tsx
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Alert, Button, Form, Card } from 'react-bootstrap';
-import { FaCheck, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaEdit } from 'react-icons/fa';
 import * as client from './client';
 
 interface QuizAttempt {
@@ -18,8 +18,13 @@ interface QuizAttempt {
   endTime: Date;
 }
 
-const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
-  const { quizId } = useParams();
+interface QuizTakerProps {
+  currentCourse: any;
+  isPreview?: boolean;
+}
+
+const QuizTaker = ({ currentCourse, isPreview = false }: QuizTakerProps) => {
+  const { quizId, cid } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const [quiz, setQuiz] = useState<any>(null);
@@ -37,8 +42,8 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
         const loadedQuiz = await client.findQuizById(quizId!);
         setQuiz(loadedQuiz);
         
-        // Load previous attempts
-        if (currentUser?._id) {
+        // Load previous attempts only if not in preview mode
+        if (currentUser?._id && !isPreview) {
           const attempts = await client.findAttemptsByUser(quizId!, currentUser._id);
           setPreviousAttempts(attempts);
         }
@@ -50,10 +55,11 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
       }
     };
     loadQuiz();
-  }, [quizId, currentUser]);
+  }, [quizId, currentUser, isPreview]);
 
   const canTakeQuiz = () => {
     if (!quiz) return false;
+    if (isPreview) return true; // Always allow taking quiz in preview mode
     if (!quiz.multipleAttempts && previousAttempts.length > 0) return false;
     if (quiz.multipleAttempts && previousAttempts.length >= quiz.maxAttempts) return false;
     return true;
@@ -106,8 +112,10 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
         endTime: new Date()
       };
   
-      await client.submitQuiz(quiz._id, attempt);
-      setPreviousAttempts(prev => [...prev, attempt]); // Add new attempt locally
+      if (!isPreview) {
+        await client.submitQuiz(quiz._id, attempt);
+      }
+      setPreviousAttempts(prev => [...prev, attempt]);
       setSubmitted(true);
     } catch (error) {
       console.error("Error submitting quiz:", error);
@@ -120,10 +128,8 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
   if (!quiz) return <Alert variant="warning">Quiz not found</Alert>;
 
   if (submitted || (!canTakeQuiz() && previousAttempts.length > 0)) {
-    // Add check for lastAttempt existence
     const lastAttempt = previousAttempts[previousAttempts.length - 1];
     
-    // Return early if no attempts exist
     if (!lastAttempt) {
       return (
         <div className="p-4">
@@ -140,6 +146,19 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
 
     return (
       <div className="p-4">
+        {isPreview && (
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <Alert variant="info" className="mb-0">Preview Mode</Alert>
+            <Button
+              variant="primary"
+              onClick={() => navigate(`/Kanbas/Courses/${cid}/Quizzes/${quizId}/edit`)}
+            >
+              <FaEdit className="me-2" />
+              Edit Quiz
+            </Button>
+          </div>
+        )}
+
         <h2>{quiz.title} - Results</h2>
         <Alert variant="info">
           Score: {lastAttempt.score} out of {quiz.points} points
@@ -149,7 +168,7 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
         {quiz.questions.map((question: any, index: number) => {
           const answer = lastAttempt.answers.find(a => a.questionId === question._id);
           return (
-            <Card key={question._id} className="mb-3">
+            <Card key={question._id} className={`mb-3 ${answer?.correct ? 'border-success' : 'border-danger'}`}>
               <Card.Header className="d-flex justify-content-between align-items-center">
                 <span>Question {index + 1}</span>
                 {answer?.correct ? (
@@ -160,8 +179,10 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
               </Card.Header>
               <Card.Body>
                 <p>{question.question}</p>
-                <p>Your answer: {answer?.answer || 'No answer provided'}</p>
-                {quiz.showCorrectAnswers && (
+                <p className={answer?.correct ? 'text-success' : 'text-danger'}>
+                  Your answer: {answer?.answer || 'No answer provided'}
+                </p>
+                {(quiz.showCorrectAnswers || isPreview) && (
                   <p className="text-success">Correct answer: {question.correctAnswer}</p>
                 )}
               </Card.Body>
@@ -171,7 +192,7 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
         
         {canTakeQuiz() && (
           <Button variant="primary" onClick={startQuiz}>
-            Take Quiz Again
+            {isPreview ? "Preview Again" : "Take Quiz Again"}
           </Button>
         )}
       </div>
@@ -180,6 +201,12 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
 
   return (
     <div className="p-4">
+      {isPreview && (
+        <Alert variant="info" className="mb-3">
+          Preview Mode - This is how students will see the quiz
+        </Alert>
+      )}
+
       {!currentAttempt ? (
         <div>
           <h2>{quiz.title}</h2>
@@ -194,7 +221,7 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
             <p>Previous attempts: {previousAttempts.length}</p>
           </Alert>
           <Button variant="primary" onClick={startQuiz}>
-            Start Quiz
+            {isPreview ? "Start Preview" : "Start Quiz"}
           </Button>
         </div>
       ) : (
@@ -257,7 +284,7 @@ const QuizTaker = ({ currentCourse }: { currentCourse: any }) => {
             onClick={handleSubmit}
             disabled={Object.keys(userAnswers).length !== quiz.questions.length}
           >
-            Submit Quiz
+            {isPreview ? "Submit Preview" : "Submit Quiz"}
           </Button>
         </div>
       )}

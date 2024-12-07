@@ -12,10 +12,12 @@ export const createAssignmentForCourse = async (courseId: string, assignment: an
     );
     return response.data;
 };
+
 export const findAssignmentsForCourse = async (courseId: string) => {
     const response = await axios.get(`${COURSES_API}/${courseId}/assignments`);
     return response.data;
 };
+
 export const createModuleForCourse = async (courseId: string, module: any) => {
     const response = await axiosWithCredentials.post(
         `${COURSES_API}/${courseId}/modules`,
@@ -23,6 +25,7 @@ export const createModuleForCourse = async (courseId: string, module: any) => {
     );
     return response.data;
 };
+
 export const findModulesForCourse = async (courseId: string) => {
     const response = await axiosWithCredentials
         .get(`${COURSES_API}/${courseId}/modules`);
@@ -33,65 +36,81 @@ export const fetchAllCourses = async () => {
     const { data } = await axiosWithCredentials.get(COURSES_API);
     return data;
 };
+
 export const deleteCourse = async (id: string) => {
     const { data } = await axiosWithCredentials.delete(`${COURSES_API}/${id}`);
     return data;
-   };
+};
    
-   export const updateCourse = async (course: any) => {
+export const updateCourse = async (course: any) => {
     const { data } = await axiosWithCredentials.put(`${COURSES_API}/${course._id}`, course);
     return data;
-   };
+};
    
 export const createCourse = async (course: any) => {
     const { data } = await axiosWithCredentials.post(COURSES_API, course);
     return data;
-   };
+};
 
-   export const createQuizForCourse = async (courseId: string, quiz: any) => {
+// Quiz related functions
+export const createQuizForCourse = async (courseId: string, quiz: any) => {
     const response = await axiosWithCredentials.post(
+        `${COURSES_API}/${courseId}/quizzes`,
+        quiz
+    );
+    return response.data;
+};
+  
+export const findQuizzesForCourse = async (courseId: string, role: string) => {
+    const response = await axiosWithCredentials.get(
       `${COURSES_API}/${courseId}/quizzes`,
-      quiz
+      { params: { role } }
     );
     return response.data;
   };
   
-  export const findQuizzesForCourse = async (courseId: string) => {
+export const findQuizById = async (quizId: string, userRole: string) => {
     const response = await axiosWithCredentials.get(
-      `${COURSES_API}/${courseId}/quizzes`
+        `${COURSES_API}/quizzes/${quizId}`,
+        { params: { role: userRole } }
     );
     return response.data;
-  };
+};
   
-  export const findQuizById = async (quizId: string) => {
-    const response = await axiosWithCredentials.get(
-      `${COURSES_API}/quizzes/${quizId}`
-    );
-    return response.data;
-  };
-  
-  export const updateQuiz = async (quizId: string, quiz: any) => {
+export const updateQuiz = async (quizId: string, quiz: any) => {
     const response = await axiosWithCredentials.put(
-      `${COURSES_API}/quizzes/${quizId}`,
-      quiz
+        `${COURSES_API}/quizzes/${quizId}`,
+        quiz
     );
     return response.data;
-  };
+};
   
-  export const deleteQuiz = async (quizId: string) => {
+export const deleteQuiz = async (quizId: string) => {
     const response = await axiosWithCredentials.delete(
-      `${COURSES_API}/quizzes/${quizId}`
+        `${COURSES_API}/quizzes/${quizId}`
     );
     return response.data;
-  };
+};
   
-  export const toggleQuizPublish = async (quizId: string) => {
+export const toggleQuizPublish = async (quizId: string) => {
     const response = await axiosWithCredentials.put(
-      `${COURSES_API}/quizzes/${quizId}/publish`
+        `${COURSES_API}/quizzes/${quizId}/publish`
     );
     return response.data;
-  };
+};
 
+// Quiz attempts
+export const submitQuiz = async (quizId: string, attempt: any) => {
+    const response = await axiosWithCredentials.post(
+        `${COURSES_API}/quizzes/${quizId}/attempts`,
+        attempt
+    );
+    return response.data;
+};
 
-  
-   
+export const findAttemptsByUser = async (quizId: string, userId: string) => {
+    const response = await axiosWithCredentials.get(
+        `${COURSES_API}/quizzes/${quizId}/attempts/${userId}`
+    );
+    return response.data;
+};

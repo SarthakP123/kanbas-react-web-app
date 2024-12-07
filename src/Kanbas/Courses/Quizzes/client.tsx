@@ -25,8 +25,11 @@ export const deleteQuiz = async (quizId: string) => {
   return response.data;
 };
 
-export const findQuizzesForCourse = async (courseId: string) => {
-  const response = await axios.get(`${API_BASE}/api/courses/${courseId}/quizzes`);
+export const findQuizzesForCourse = async (courseId: string, role?: string) => {
+  const response = await axios.get(
+    `${API_BASE}/api/courses/${courseId}/quizzes`,
+    role ? { params: { role } } : undefined
+  );
   return response.data;
 };
 
