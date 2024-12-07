@@ -48,6 +48,50 @@ export const createCourse = async (course: any) => {
     return data;
    };
 
+   export const createQuizForCourse = async (courseId: string, quiz: any) => {
+    const response = await axiosWithCredentials.post(
+      `${COURSES_API}/${courseId}/quizzes`,
+      quiz
+    );
+    return response.data;
+  };
+  
+  export const findQuizzesForCourse = async (courseId: string) => {
+    const response = await axiosWithCredentials.get(
+      `${COURSES_API}/${courseId}/quizzes`
+    );
+    return response.data;
+  };
+  
+  export const findQuizById = async (quizId: string) => {
+    const response = await axiosWithCredentials.get(
+      `${COURSES_API}/quizzes/${quizId}`
+    );
+    return response.data;
+  };
+  
+  export const updateQuiz = async (quizId: string, quiz: any) => {
+    const response = await axiosWithCredentials.put(
+      `${COURSES_API}/quizzes/${quizId}`,
+      quiz
+    );
+    return response.data;
+  };
+  
+  export const deleteQuiz = async (quizId: string) => {
+    const response = await axiosWithCredentials.delete(
+      `${COURSES_API}/quizzes/${quizId}`
+    );
+    return response.data;
+  };
+  
+  export const toggleQuizPublish = async (quizId: string) => {
+    const response = await axiosWithCredentials.put(
+      `${COURSES_API}/quizzes/${quizId}/publish`
+    );
+    return response.data;
+  };
+
 
   
    

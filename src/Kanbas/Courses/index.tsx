@@ -1,3 +1,4 @@
+// Courses/index.tsx
 import { useParams, useLocation } from "react-router-dom";
 import CoursesNavigation from "./Navigation";
 import Modules from "./Modules";
@@ -7,6 +8,8 @@ import AssignmentEditor from "./Assignments/Editor";
 import { FaAlignJustify } from "react-icons/fa";
 import { Routes, Route } from "react-router";
 import PeopleTable from "./People/Table";
+import QuizList from "./Quizzes/quizlist";
+import QuizEditor from "./Quizzes/quizeditor";
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
@@ -39,6 +42,10 @@ export default function Courses({ courses }: { courses: any[] }) {
             <Route path="Assignments" element={<Assignments />} />
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
             <Route path="People" element={<PeopleTable />} />
+            <Route path="Quizzes" element={<QuizList />} />
+            <Route path="Quizzes/new" element={<QuizEditor />} />
+            <Route path="Quizzes/:qid" element={<QuizEditor />} />
+            <Route path="Quizzes/:qid/edit" element={<QuizEditor />} />
           </Routes>
         </div>
       </div>
